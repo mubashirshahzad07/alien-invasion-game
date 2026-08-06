@@ -26,7 +26,7 @@ class AlienInvasion:
         while True:
             self._check_events()
             self.ship.update()
-            self.bullets.update()
+            self._update_bullets()
             self._update_screen()
 
             self.clock.tick(60)
@@ -58,16 +58,28 @@ class AlienInvasion:
 
     def _update_screen(self):
         self.screen.fill(self.settings.screen_bg_color)
-        self.ship.blitme()
 
         for bullet in self.bullets:
             bullet.draw_bullet()
 
+        self.ship.blitme()
+
         pygame.display.flip()
 
     def _fire_bullets(self):
-        bullet = Bullet(self)
-        self.bullets.add(bullet)
+        if len(self.bullets) < self.settings.bullets_allowed:
+            bullet = Bullet(self)
+            self.bullets.add(bullet)
+
+    def _remove_bullets(self):
+        """Removes the bullets that have travelled out of screen."""
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+
+    def _update_bullets(self):
+        self.bullets.update()
+        self._remove_bullets()
 
 
 if __name__ == "__main__":
