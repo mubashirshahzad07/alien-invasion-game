@@ -66,7 +66,7 @@ class AlienInvasion:
         pygame.display.flip()
 
     def _fire_bullets(self):
-        bullet = Bullet(self)
+        bullet = Bullet()
         self.bullets.add(bullet)
 
 
