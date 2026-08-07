@@ -13,3 +13,8 @@ class Settings:
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
         self.bullets_allowed = 5
+
+        self.alien_speed = 1.0
+        self.fleet_drop_speed = 10
+        # 1 means towards +x axis, -1 means towards -x axis
+        self.fleet_direction = 1
