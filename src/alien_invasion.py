@@ -10,6 +10,7 @@ from game_stats import GameStats
 
 from time import sleep
 
+
 class AlienInvasion:
 
     def __init__(self):
@@ -84,7 +85,6 @@ class AlienInvasion:
 
     def _remove_bullets(self):
         """Removes the bullets that have traveled out of screen."""
-        
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
@@ -151,7 +151,6 @@ class AlienInvasion:
 
     def _ship_hit(self):
         """Handles the Alien-Ship collision."""
-
         self.stats.ships_left -= 1
 
         self._update_screen()
