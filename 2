@@ -112,10 +112,10 @@ class AlienInvasion:
 
         if alien_hit:
             for aliens in alien_hit.values():
-                self.stats.score += self.settings.alien_points * len(aliens)
-
+                self.stats.score += \
+                    int(self.settings.alien_points) * len(aliens)
+                
             self.score_board.prepare_score()
-            self.score_board.update_highest_score()
 
         if not self.aliens:
             self.bullets.empty()

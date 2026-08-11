@@ -16,20 +16,24 @@ class Settings:
         self.bullets_allowed = 5
 
         self.alien_speed = 1.0
-        self.fleet_drop_speed = 15
+        self.alien_points = 50
+        self.fleet_drop_speed = 150
         # 1 means towards +x axis, -1 means towards -x axis
         self.fleet_direction = 1
 
         self.speedup_scale = 1.2
+        self.score_scale = 1.5
 
     def reset_game_speeds(self):
         """Reset the speeds when the game is restarted."""
         self.ship_speed = 2.5
         self.bullet_speed = 2.5
         self.alien_speed = 1.0
+        self.alien_points = 50
         self.fleet_direction = 1
 
     def increase_game_speed(self):
         self.ship_speed *= self.speedup_scale
         self.alien_speed *= self.speedup_scale
         self.bullet_speed *= self.speedup_scale
+        self.alien_points = int(self.score_scale * self.alien_points)
