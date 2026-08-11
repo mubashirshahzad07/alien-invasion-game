@@ -3,8 +3,8 @@ class GameStats:
 
     def __init__(self, game):
         self.settings = game.settings
-        self.ships_left = self.settings.ship_lives_limit
 
+        self.ships_left = self.settings.ship_lives_limit
         self.highest_score = 0
         self.score = 0
         self.level = 0

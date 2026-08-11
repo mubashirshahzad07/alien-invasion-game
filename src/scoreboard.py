@@ -1,10 +1,13 @@
 import pygame
 
+from ship import Ship
+
 
 class ScoreBoard:
     """Handles information related to game score."""
 
     def __init__(self, game):
+        self.game = game
         self.screen = game.screen
         self.screen_rect = self.screen.get_rect()
         self.settings = game.settings
@@ -16,6 +19,7 @@ class ScoreBoard:
         self.render_score()
         self.render_high_score()
         self.render_level()
+        self.render_ships()
 
     def render_score(self):
         """Render an image from the score text."""
@@ -46,6 +50,7 @@ class ScoreBoard:
         self.highest_score_rect.top = self.score_rect.top
 
     def render_level(self):
+        """Render an image from the level text."""
         self.level_img = self.font.render(
             str(self.stats.level),
             True,
@@ -54,13 +59,23 @@ class ScoreBoard:
         )
 
         self.level_rect = self.level_img.get_rect()
-        self.level_rect.left = self.screen_rect.left + 20
-        self.level_rect.top = 20
+        self.level_rect.right = self.score_rect.right
+        self.level_rect.top = self.score_rect.bottom + 10
+
+    def render_ships(self):
+        """Shows how many ships are left."""
+        self.ships = pygame.sprite.Group()
+        for ship_number in range(self.stats.ships_left):
+            ship = Ship(self.game)
+            ship.rect.x = 10 + ship_number * ship.rect.width
+            ship.rect.y = 10
+            self.ships.add(ship)
 
     def display_scoreboard(self):
         self.screen.blit(self.score_img, self.score_rect)
         self.screen.blit(self.highest_score_img, self.highest_score_rect)
         self.screen.blit(self.level_img, self.level_rect)
+        self.ships.draw(self.screen)
 
     def update_highest_score(self):
         if self.stats.score > self.stats.highest_score:

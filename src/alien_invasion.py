@@ -181,6 +181,7 @@ class AlienInvasion:
     def _ship_hit(self):
         """Handles the Alien-Ship collision."""
         self.stats.ships_left -= 1
+        self.score_board.render_ships()
 
         self._update_screen()
         sleep(1)
@@ -202,6 +203,7 @@ class AlienInvasion:
             self.stats.reset_stats()
             self.score_board.render_score()
             self.score_board.render_level()
+            self.score_board.render_ships()
             self.aliens.empty()
             self.bullets.empty()
             self.ship.center_ship()
