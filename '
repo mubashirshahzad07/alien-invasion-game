@@ -121,8 +121,6 @@ class AlienInvasion:
             self.bullets.empty()
             self._create_aliens_fleet()
             self.settings.increase_game_speed()
-            self.stats.level += 1
-            self.score_board.render_level()
 
     def _update_bullets(self):
         self.bullets.update()
@@ -201,7 +199,6 @@ class AlienInvasion:
             self.game_running = True
             self.stats.reset_stats()
             self.score_board.render_score()
-            self.score_board.render_level()
             self.aliens.empty()
             self.bullets.empty()
             self.ship.center_ship()

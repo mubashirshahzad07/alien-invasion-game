@@ -13,10 +13,11 @@ class ScoreBoard:
         self.text_color = (30, 30, 30)
         self.font = pygame.font.SysFont(None, 48)
 
-        self.prepare_score()
-        self.prepare_high_score()
+        self.render_score()
+        self.render_high_score()
+        self.render_level()
 
-    def prepare_score(self):
+    def render_score(self):
         """Render an image from the score text."""
         score = f"{round(self.stats.score, -1): ,}"
         self.score_img = self.font.render(
@@ -30,8 +31,8 @@ class ScoreBoard:
         self.score_rect.right = self.screen_rect.right - 20
         self.score_rect.top = 20
 
-    def prepare_high_score(self):
-        """Render an image from the score text."""
+    def render_high_score(self):
+        """Render an image from the highest score text."""
         highest_score = f"{round(self.stats.highest_score, -1): ,}"
         self.highest_score_img = self.font.render(
             highest_score,
@@ -44,11 +45,24 @@ class ScoreBoard:
         self.highest_score_rect.centerx = self.screen_rect.centerx
         self.highest_score_rect.top = self.score_rect.top
 
-    def display_score(self):
+    def render_level(self):
+        self.level_img = self.font.render(
+            str(self.stats.level),
+            True,
+            self.text_color,
+            self.settings.screen_bg_color
+        )
+
+        self.level_rect = self.level_img.get_rect()
+        self.level_rect.left = self.screen_rect.left + 20
+        self.level_rect.top = 20
+
+    def display_scoreboard(self):
         self.screen.blit(self.score_img, self.score_rect)
         self.screen.blit(self.highest_score_img, self.highest_score_rect)
+        self.screen.blit(self.level_img, self.level_rect)
 
     def update_highest_score(self):
         if self.stats.score > self.stats.highest_score:
             self.stats.highest_score = self.stats.score
-            self.prepare_high_score()
+            self.render_high_score()
