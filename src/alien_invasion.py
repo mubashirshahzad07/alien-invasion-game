@@ -50,7 +50,9 @@ class AlienInvasion:
             self.clock.tick(60)
 
     def _check_keydown_events(self, event):
-        if event.key == pygame.K_RIGHT:
+        if event.key == pygame.K_a:
+            self._check_play_button()
+        elif event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = True
@@ -156,9 +158,9 @@ class AlienInvasion:
         alien_height = alien.rect.height
 
         current_x = alien_width
-        current_y = alien_height
+        current_y = alien_height + 50
 
-        while current_y < (self.settings.screen_height - 3 * alien_height):
+        while current_y < (self.settings.screen_height - 3 * alien_height - 70):
             while current_x < (self.settings.screen_width - 2 * alien_width):
                 self._create_alien(current_x, current_y)
                 current_x += 2 * alien_width
@@ -196,8 +198,12 @@ class AlienInvasion:
         self._create_aliens_fleet()
         self.ship.center_ship()
 
-    def _check_play_button(self, mouse_pos):
+    def _check_play_button(self, mouse_pos=None):
+        if not mouse_pos:
+            mouse_pos = self.play_button.rect.center
+
         play_button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+
         if play_button_clicked and not self.game_running:
             self.game_running = True
             self.stats.reset_stats()
