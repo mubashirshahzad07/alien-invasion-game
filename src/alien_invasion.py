@@ -224,8 +224,3 @@ class AlienInvasion:
             self.game_count += 1
             self.settings.reset_game_speeds()
             pygame.mouse.set_visible(False)
-
-
-if __name__ == "__main__":
-    alien_invasion_game = AlienInvasion()
-    alien_invasion_game.run_game()
