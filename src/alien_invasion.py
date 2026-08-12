@@ -56,6 +56,10 @@ class AlienInvasion:
             self.ship.moving_right = True
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = True
+        elif event.key == pygame.K_UP:
+            self.ship.moving_up = True
+        elif event.key == pygame.K_DOWN:
+            self.ship.moving_down = True
         elif event.key == pygame.K_SPACE:
             self._fire_bullets()
         elif event.key == pygame.K_q:
@@ -66,6 +70,10 @@ class AlienInvasion:
             self.ship.moving_right = False
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
+        elif event.key == pygame.K_UP:
+            self.ship.moving_up = False
+        elif event.key == pygame.K_DOWN:
+            self.ship.moving_down = False
 
     def _check_events(self):
         for event in pygame.event.get():
@@ -102,7 +110,7 @@ class AlienInvasion:
             self.bullets.add(bullet)
 
     def _remove_bullets(self):
-        """Removes the bullets that have traveled out of screen."""
+        """Removes the bullets that have traveled out of the screen."""
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
