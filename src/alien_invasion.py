@@ -37,6 +37,8 @@ class AlienInvasion:
         self.aliens = pygame.sprite.Group()
         self.rain_drops = pygame.sprite.Group()
 
+        self.__prev_highest_score = self.stats.highest_score
+        print(self.__prev_highest_score)
         self.__rain_count = 0
 
         self._create_aliens_fleet()
@@ -68,6 +70,7 @@ class AlienInvasion:
         elif event.key == pygame.K_SPACE:
             self._fire_bullets()
         elif event.key == pygame.K_q:
+            self._update_highest_score()
             sys.exit()
 
     def _check_keyup_events(self, event):
@@ -83,6 +86,7 @@ class AlienInvasion:
     def _check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                self._update_highest_score()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
@@ -91,6 +95,11 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+
+    def _update_highest_score(self):
+        if self.stats.highest_score > self.__prev_highest_score:
+            with open("highest_score.txt", "w") as hs_file:
+                hs_file.write(str(self.stats.highest_score))
 
     def _update_screen(self):
         self.screen.fill(self.settings.screen_bg_color)
