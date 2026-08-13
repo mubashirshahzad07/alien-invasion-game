@@ -6,7 +6,7 @@ class Settings:
         self.screen_height = 800
         self.screen_bg_color = (230, 230, 230)
 
-        self.ship_speed = 2.5
+        self.ship_speed = 2
         self.ship_lives_limit = 3
 
         self.bullet_speed = 2.5
@@ -20,6 +20,8 @@ class Settings:
         self.fleet_drop_speed = 15
         # 1 means towards +x axis, -1 means towards -x axis
         self.fleet_direction = 1
+
+        self.raindrop_speed = 3
 
         self.speedup_scale = 1.2
         self.score_scale = 1.5

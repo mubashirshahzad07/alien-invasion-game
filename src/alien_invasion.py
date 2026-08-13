@@ -11,6 +11,7 @@ from alien import Alien
 from game_stats import GameStats
 from button import Button
 from scoreboard import ScoreBoard
+from raindrop import RainDrop
 
 
 class AlienInvasion:
@@ -34,6 +35,9 @@ class AlienInvasion:
         self.score_board = ScoreBoard(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        self.rain_drops = pygame.sprite.Group()
+
+        self.__rain_count = 0
 
         self._create_aliens_fleet()
 
@@ -45,12 +49,13 @@ class AlienInvasion:
                 self.ship.update()
                 self._update_aliens()
                 self._update_bullets()
+                self._update_raindrops()
 
             self._update_screen()
             self.clock.tick(60)
 
     def _check_keydown_events(self, event):
-        if event.key == pygame.K_a:
+        if event.key == pygame.K_p:
             self._check_play_button()
         elif event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
@@ -96,6 +101,7 @@ class AlienInvasion:
         self.ship.blitme()
         self.aliens.draw(self.screen)
         self.score_board.display_scoreboard()
+        self.rain_drops.draw(self.screen)
 
         if not self.game_running:
             if self.game_count == 1:
@@ -139,6 +145,11 @@ class AlienInvasion:
         self._remove_bullets()
         self._check_aliens_bullet_collision()
 
+    def _update_raindrops(self):
+        self._create_raindrops()
+        self.rain_drops.update()
+        self._remove_raindrops()
+
     def _update_aliens(self):
         self._check_fleet_edges()
         self.aliens.update()
@@ -181,6 +192,40 @@ class AlienInvasion:
         new_alien.rect.x = x
         new_alien.rect.y = y
         self.aliens.add(new_alien)
+
+    def _remove_raindrops(self):
+        """Removes the drops that have traveled out of the game screen."""
+        for drop in self.rain_drops.sprites()[:]:
+            if drop.rect.top > self.settings.screen_height:
+                self.rain_drops.remove(drop)
+
+    def _create_raindrops(self):
+        raindrop = RainDrop(self)
+
+        raindrop_width = raindrop.rect.width
+        raindrop_height = raindrop.rect.height
+
+        current_x = raindrop_width
+        current_y = raindrop_height
+
+        last_drop = self.rain_drops.sprites()[-1] if self.rain_drops else None
+
+        if self.__rain_count % 2 == 0:
+            current_x *= 3
+
+        if not self.rain_drops or last_drop.rect.top >= 100:
+
+            self.__rain_count = (self.__rain_count + 1) % 2
+            while current_x < (self.settings.screen_width - 2 * raindrop_width):
+                self._create_raindrop(current_x, current_y)
+                current_x += 4 * raindrop_width
+
+    def _create_raindrop(self, x, y):
+        new_raindrop = RainDrop(self)
+        new_raindrop.rect.x = x
+        new_raindrop.rect.y = y
+        new_raindrop.y = y
+        self.rain_drops.add(new_raindrop)
 
     def _check_aliens_at_bottom(self):
         for alien in self.aliens:
