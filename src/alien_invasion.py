@@ -38,7 +38,6 @@ class AlienInvasion:
         self.rain_drops = pygame.sprite.Group()
 
         self.__prev_highest_score = self.stats.highest_score
-        print(self.__prev_highest_score)
         self.__rain_count = 0
 
         self._create_aliens_fleet()
@@ -188,8 +187,10 @@ class AlienInvasion:
         current_x = alien_width
         current_y = alien_height + 50
 
-        while current_y < (self.settings.screen_height - 3 * alien_height - 70):
-            while current_x < (self.settings.screen_width - 2 * alien_width):
+        y_limit = self.settings.screen_height - 3 * alien_height - 70
+        x_limit = self.settings.screen_width - 2 * alien_width
+        while current_y < y_limit:
+            while current_x < x_limit:
                 self._create_alien(current_x, current_y)
                 current_x += 2 * alien_width
             current_x = alien_width
@@ -223,9 +224,9 @@ class AlienInvasion:
             current_x *= 3
 
         if not self.rain_drops or last_drop.rect.top >= 100:
-
             self.__rain_count = (self.__rain_count + 1) % 2
-            while current_x < (self.settings.screen_width - 2 * raindrop_width):
+            x_limit = self.settings.screen_width - 2 * raindrop_width
+            while current_x < x_limit:
                 self._create_raindrop(current_x, current_y)
                 current_x += 4 * raindrop_width
 
