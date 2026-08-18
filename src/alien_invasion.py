@@ -1,4 +1,5 @@
 import sys
+import random
 
 import pygame
 
@@ -6,12 +7,13 @@ from time import sleep
 
 from settings import Settings
 from ship import Ship
-from bullet import Bullet
+from ship_bullet import ShipBullet
+from alien_bullet import AlienBullet
 from alien import Alien
 from game_stats import GameStats
 from button import Button
 from scoreboard import ScoreBoard
-from raindrop import RainDrop
+# from raindrop import RainDrop
 
 
 class AlienInvasion:
@@ -33,7 +35,8 @@ class AlienInvasion:
         self.play_button = Button(self, "Play")
         self.ship = Ship(self)
         self.score_board = ScoreBoard(self)
-        self.bullets = pygame.sprite.Group()
+        self.ship_bullets = pygame.sprite.Group()
+        self.aliens_bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.rain_drops = pygame.sprite.Group()
 
@@ -50,7 +53,7 @@ class AlienInvasion:
                 self.ship.update()
                 self._update_aliens()
                 self._update_bullets()
-                self._update_raindrops()
+                # self._update_raindrops()
 
             self._update_screen()
             self.clock.tick(60)
@@ -67,7 +70,7 @@ class AlienInvasion:
         elif event.key == pygame.K_DOWN:
             self.ship.moving_down = True
         elif event.key == pygame.K_SPACE:
-            self._fire_bullets()
+            self._fire_ship_bullets()
         elif event.key == pygame.K_q:
             self._update_highest_score()
             sys.exit()
@@ -103,7 +106,10 @@ class AlienInvasion:
     def _update_screen(self):
         self.screen.fill(self.settings.screen_bg_color)
 
-        for bullet in self.bullets:
+        for bullet in self.ship_bullets:
+            bullet.draw_bullet()
+
+        for bullet in self.aliens_bullets:
             bullet.draw_bullet()
 
         self.ship.blitme()
@@ -118,20 +124,27 @@ class AlienInvasion:
 
         pygame.display.flip()
 
-    def _fire_bullets(self):
-        if len(self.bullets) < self.settings.bullets_allowed:
-            bullet = Bullet(self)
-            self.bullets.add(bullet)
+    def _fire_ship_bullets(self):
+        if len(self.ship_bullets) < self.settings.bullets_allowed:
+            bullet = ShipBullet(self)
+            self.ship_bullets.add(bullet)
 
-    def _remove_bullets(self):
-        """Removes the bullets that have traveled out of the screen."""
-        for bullet in self.bullets.copy():
+    def _remove_ship_bullets(self):
+        """Removes the ship bullets that have traveled out of the screen."""
+        for bullet in self.ship_bullets.copy():
             if bullet.rect.bottom <= 0:
-                self.bullets.remove(bullet)
+                self.ship_bullets.remove(bullet)
+
+    def _remove_alien_bullets(self):
+        """Removes the aliens bullets that have traveled out of the screen."""
+        for bullet in self.aliens_bullets.copy():
+            if bullet.rect.top >= self.settings.screen_height:
+                self.aliens_bullets.remove(bullet)
 
     def _check_aliens_bullet_collision(self):
+        """Check if the ship bullet hits any alien. Updates the score and alien fleet accordingly."""
         alien_hit = pygame.sprite.groupcollide(
-            self.bullets, self.aliens, True, True
+            self.ship_bullets, self.aliens, True, True
         )
 
         if alien_hit:
@@ -142,21 +155,33 @@ class AlienInvasion:
             self.score_board.update_highest_score()
 
         if not self.aliens:
-            self.bullets.empty()
+            self.ship_bullets.empty()
             self._create_aliens_fleet()
             self.settings.increase_game_speed()
             self.stats.level += 1
             self.score_board.render_level()
 
-    def _update_bullets(self):
-        self.bullets.update()
-        self._remove_bullets()
-        self._check_aliens_bullet_collision()
+    def _check_ship_bullet_collision(self):
+        """Check if the alien bullet hits any alien. Updates the ship lives accordingly."""
+        ship_hit = pygame.sprite.spritecollideany(
+            self.ship, self.aliens_bullets
+        )
 
-    def _update_raindrops(self):
-        self._create_raindrops()
-        self.rain_drops.update()
-        self._remove_raindrops()
+        if ship_hit:
+            self._ship_hit()
+
+    def _update_bullets(self):
+        self.ship_bullets.update()
+        self.aliens_bullets.update()
+        self._remove_ship_bullets()
+        self._remove_alien_bullets()
+        self._check_aliens_bullet_collision()
+        self._check_ship_bullet_collision()
+
+    # def _update_raindrops(self):
+    #     self._create_raindrops()
+    #     self.rain_drops.update()
+    #     self._remove_raindrops()
 
     def _update_aliens(self):
         self._check_fleet_edges()
@@ -167,10 +192,33 @@ class AlienInvasion:
 
         self._check_aliens_at_bottom()
 
+    def _get_last_alien_index(self):
+        """Returns the index of first alien in the last row."""
+        idx = len(self.aliens) - 1
+        aliens = self.aliens.sprites()
+        last_y = aliens[idx].rect.y
+
+        while aliens[idx].rect.y == last_y:
+            idx -= 1
+        idx += 1
+
+        return idx
+
+    def _fire_alien_bullets(self):
+        idx = self._get_last_alien_index()
+        aliens = self.aliens.sprites()[idx:]
+
+        for i in range(self.settings.alien_bullets_limit):
+            alien = random.choice(aliens)
+            aliens.remove(alien)
+            alien_bullet = AlienBullet(self, alien)
+            self.aliens_bullets.add(alien_bullet)
+
     def _check_fleet_edges(self):
         for alien in self.aliens.sprites():
             if alien.hit_edges():
                 self._change_aliens_fleet_direction()
+                self._fire_alien_bullets()
                 break
 
     def _change_aliens_fleet_direction(self):
@@ -203,39 +251,39 @@ class AlienInvasion:
         new_alien.rect.y = y
         self.aliens.add(new_alien)
 
-    def _remove_raindrops(self):
-        """Removes the drops that have traveled out of the game screen."""
-        for drop in self.rain_drops.sprites()[:]:
-            if drop.rect.top > self.settings.screen_height:
-                self.rain_drops.remove(drop)
+    # def _remove_raindrops(self):
+    #     """Removes the drops that have traveled out of the game screen."""
+    #     for drop in self.rain_drops.sprites()[:]:
+    #         if drop.rect.top > self.settings.screen_height:
+    #             self.rain_drops.remove(drop)
 
-    def _create_raindrops(self):
-        raindrop = RainDrop(self)
+    # def _create_raindrops(self):
+    #     raindrop = RainDrop(self)
 
-        raindrop_width = raindrop.rect.width
-        raindrop_height = raindrop.rect.height
+    #     raindrop_width = raindrop.rect.width
+    #     raindrop_height = raindrop.rect.height
 
-        current_x = raindrop_width
-        current_y = raindrop_height
+    #     current_x = raindrop_width
+    #     current_y = raindrop_height
 
-        last_drop = self.rain_drops.sprites()[-1] if self.rain_drops else None
+    #     last_drop = self.rain_drops.sprites()[-1] if self.rain_drops else None
 
-        if self.__rain_count % 2 == 0:
-            current_x *= 3
+    #     if self.__rain_count % 2 == 0:
+    #         current_x *= 3
 
-        if not self.rain_drops or last_drop.rect.top >= 100:
-            self.__rain_count = (self.__rain_count + 1) % 2
-            x_limit = self.settings.screen_width - 2 * raindrop_width
-            while current_x < x_limit:
-                self._create_raindrop(current_x, current_y)
-                current_x += 4 * raindrop_width
+    #     if not self.rain_drops or last_drop.rect.top >= 100:
+    #         self.__rain_count = (self.__rain_count + 1) % 2
+    #         x_limit = self.settings.screen_width - 2 * raindrop_width
+    #         while current_x < x_limit:
+    #             self._create_raindrop(current_x, current_y)
+    #             current_x += 4 * raindrop_width
 
-    def _create_raindrop(self, x, y):
-        new_raindrop = RainDrop(self)
-        new_raindrop.rect.x = x
-        new_raindrop.rect.y = y
-        new_raindrop.y = y
-        self.rain_drops.add(new_raindrop)
+    # def _create_raindrop(self, x, y):
+    #     new_raindrop = RainDrop(self)
+    #     new_raindrop.rect.x = x
+    #     new_raindrop.rect.y = y
+    #     new_raindrop.y = y
+    #     self.rain_drops.add(new_raindrop)
 
     def _check_aliens_at_bottom(self):
         for alien in self.aliens:
@@ -256,7 +304,8 @@ class AlienInvasion:
             pygame.mouse.set_visible(True)
 
         self.aliens.empty()
-        self.bullets.empty()
+        self.ship_bullets.empty()
+        self.aliens_bullets.empty()
 
         self._create_aliens_fleet()
         self.ship.center_ship()
@@ -274,7 +323,7 @@ class AlienInvasion:
             self.score_board.render_level()
             self.score_board.render_ships()
             self.aliens.empty()
-            self.bullets.empty()
+            self.ship_bullets.empty()
             self.ship.center_ship()
             self.game_count += 1
             self.settings.reset_game_speeds()

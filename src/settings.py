@@ -12,14 +12,16 @@ class Settings:
         self.bullet_speed = 2.5
         self.bullet_width = 3
         self.bullet_height = 15
-        self.bullet_color = (60, 60, 60)
+        self.ship_bullet_color = (3, 102, 252)
         self.bullets_allowed = 5
 
         self.alien_speed = 1.0
         self.alien_points = 50
         self.fleet_drop_speed = 15
-        # 1 means towards +x axis, -1 means towards -x axis
-        self.fleet_direction = 1
+        self.fleet_direction = 1   # 1 means towards +x axis, -1 means towards -x axis
+
+        self.alien_bullets_limit = 1
+        self.alien_bullet_color = (252, 3, 44)
 
         self.raindrop_speed = 3
 
