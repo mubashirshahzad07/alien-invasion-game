@@ -11,8 +11,10 @@ from ship_bullet import ShipBullet
 from alien_bullet import AlienBullet
 from alien import Alien
 from game_stats import GameStats
-from button import Button
 from scoreboard import ScoreBoard
+from hard_button import HardButton
+from medium_button import MediumButton
+from easy_button import EasyButton
 # from raindrop import RainDrop
 
 
@@ -32,7 +34,9 @@ class AlienInvasion:
         pygame.display.set_caption("Alien Invasion")
 
         self.stats = GameStats(self)
-        self.play_button = Button(self, "Play")
+        self.hard_button = HardButton(self, "Hard")
+        self.medium_button = MediumButton(self, "Medium")
+        self.easy_button = EasyButton(self, "Easy")
         self.ship = Ship(self)
         self.score_board = ScoreBoard(self)
         self.ship_bullets = pygame.sprite.Group()
@@ -59,8 +63,12 @@ class AlienInvasion:
             self.clock.tick(60)
 
     def _check_keydown_events(self, event):
-        if event.key == pygame.K_p:
-            self._check_play_button()
+        if event.key == pygame.K_h:
+            self._check_hard_button()
+        elif event.key == pygame.K_m:
+            self._check_medium_button()
+        elif event.key == pygame.K_e:
+            self._check_easy_button()
         elif event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
         elif event.key == pygame.K_LEFT:
@@ -92,7 +100,9 @@ class AlienInvasion:
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                self._check_play_button(mouse_pos)
+                self._check_hard_button(mouse_pos)
+                self._check_medium_button(mouse_pos)
+                self._check_easy_button(mouse_pos)
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
@@ -118,9 +128,9 @@ class AlienInvasion:
         self.rain_drops.draw(self.screen)
 
         if not self.game_running:
-            if self.game_count == 1:
-                self.play_button = Button(self, "Play Again")
-            self.play_button.draw_button()
+            self.hard_button.draw_button()
+            self.easy_button.draw_button()
+            self.medium_button.draw_button()
 
         pygame.display.flip()
 
@@ -198,7 +208,7 @@ class AlienInvasion:
         aliens = self.aliens.sprites()
         last_y = aliens[idx].rect.y
 
-        while aliens[idx].rect.y == last_y:
+        while idx >= 0 and aliens[idx].rect.y == last_y:
             idx -= 1
         idx += 1
 
@@ -209,6 +219,8 @@ class AlienInvasion:
         aliens = self.aliens.sprites()[idx:]
 
         for i in range(self.settings.alien_bullets_limit):
+            if not aliens:
+                return
             alien = random.choice(aliens)
             aliens.remove(alien)
             alien_bullet = AlienBullet(self, alien)
@@ -310,13 +322,8 @@ class AlienInvasion:
         self._create_aliens_fleet()
         self.ship.center_ship()
 
-    def _check_play_button(self, mouse_pos=None):
-        if not mouse_pos:
-            mouse_pos = self.play_button.rect.center
-
-        play_button_clicked = self.play_button.rect.collidepoint(mouse_pos)
-
-        if play_button_clicked and not self.game_running:
+    def _start_game(self, button_clicked):
+        if button_clicked and not self.game_running:
             self.game_running = True
             self.stats.reset_stats()
             self.score_board.render_score()
@@ -328,3 +335,36 @@ class AlienInvasion:
             self.game_count += 1
             self.settings.reset_game_speeds()
             pygame.mouse.set_visible(False)
+
+    def _check_hard_button(self, mouse_pos=None):
+        if not mouse_pos:
+            mouse_pos = self.hard_button.rect.center
+
+        hard_button_clicked = self.hard_button.rect.collidepoint(mouse_pos)
+
+        if hard_button_clicked:
+            self.hard_button.initialize_hard_settings()
+
+        self._start_game(hard_button_clicked)
+
+    def _check_medium_button(self, mouse_pos=None):
+        if not mouse_pos:
+            mouse_pos = self.medium_button.rect.center
+
+        medium_button_clicked = self.medium_button.rect.collidepoint(mouse_pos)
+
+        if medium_button_clicked:
+            self.medium_button.initialize_medium_settings()
+
+        self._start_game(medium_button_clicked)
+
+    def _check_easy_button(self, mouse_pos=None):
+        if not mouse_pos:
+            mouse_pos = self.easy_button.rect.center
+
+        easy_button_clicked = self.easy_button.rect.collidepoint(mouse_pos)
+
+        if easy_button_clicked:
+            self.easy_button.initialize_easy_settings()
+
+        self._start_game(easy_button_clicked)

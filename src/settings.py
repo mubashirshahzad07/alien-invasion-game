@@ -10,6 +10,7 @@ class Settings:
         self.ship_lives_limit = 3
 
         self.bullet_speed = 2.5
+
         self.bullet_width = 3
         self.bullet_height = 15
         self.ship_bullet_color = (3, 102, 252)
@@ -20,13 +21,13 @@ class Settings:
         self.fleet_drop_speed = 15
         self.fleet_direction = 1   # 1 means towards +x axis, -1 means towards -x axis
 
-        self.alien_bullets_limit = 1
+        self.alien_bullets_limit = 2
         self.alien_bullet_color = (252, 3, 44)
 
         self.raindrop_speed = 3
 
-        self.speedup_scale = 1.2
-        self.score_scale = 1.5
+        self.speedup_scale = 1.5
+        self.score_scale = 1.7
 
     def reset_game_speeds(self):
         """Reset the speeds when the game is restarted."""
